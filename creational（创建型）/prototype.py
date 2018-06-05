@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+*TL;DR80
+Creates new object instances by cloning prototype.
+
+这种模式是实现了一个原型接口，该接口用于创建当前对象的克隆。
+当直接创建对象的代价比较大时，则采用这种模式
+"""
+
+
+class Prototype(object):
+
+    value = 'default'
+
+    def clone(self, **attrs):
+        """Clone a prototype and update inner attributes dictionary"""
+        # Python in Practice, Mark Summerfield
+        obj = self.__class__()
+        obj.__dict__.update(attrs)
+        return obj
+
+
+class PrototypeDispatcher(object):
+
+    def __init__(self):
+        self._objects = {}
+
+    def get_objects(self):
+        """Get all objects"""
+        return self._objects
+
+    def register_object(self, name, obj):
+        """Register an object"""
+        self._objects[name] = obj
+
+    def unregister_object(self, name):
+        """Unregister an object"""
+        del self._objects[name]
+
+
+def main():
+    dispatcher = PrototypeDispatcher()
+    prototype = Prototype()
+
+    d = prototype.clone()
+    a = prototype.clone(value='a-value', category='a')
+    b = prototype.clone(value='b-value', is_checked=True)
+    dispatcher.register_object('objecta', a)
+    dispatcher.register_object('objectb', b)
+    dispatcher.register_object('default', d)
+    print([{n: p.value} for n, p in dispatcher.get_objects().items()])
+
+
+if __name__ == '__main__':
+    main()
+
+### OUTPUT ###
+# [{'objectb': 'b-value'}, {'default': 'default'}, {'objecta': 'a-value'}]
